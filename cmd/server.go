@@ -12,7 +12,7 @@ import (
 
 func main() {
 	log := logrus.WithFields(logrus.Fields{
-		"service": "tcpserver",
+		"service": "tcp-server",
 	})
 
 	// Convert PORT env variable value to an integer

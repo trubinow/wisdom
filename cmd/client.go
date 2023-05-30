@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/gob"
+	"encoding/hex"
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"net"
@@ -50,7 +51,7 @@ func main() {
 	}
 
 	// Make work
-	proof, err := hashcash.GenerateHashToken(work.Resource, work.Difficulty)
+	proof, err := hashcash.GenerateHashToken(hex.EncodeToString(work.Resource), work.Difficulty)
 	if err != nil {
 		log.Errorf("error generating hash token: %s", err.Error())
 		return
