@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"strings"
 )
@@ -17,23 +18,43 @@ func GenerateNonce() ([]byte, error) {
 	return nonce, nil
 }
 
-// GenerateHashToken generates a hash-cash token for the given resource and difficulty
-func GenerateHashToken(resource string, difficulty int) (string, error) {
-	prefix := strings.Repeat("0", difficulty)
+// formatNonceBytes formats the nonce as []byte, avoiding string conversions.
+// It iteratively divides the nonce value by 10 and sets the corresponding byte value as the ASCII representation of the digit
+func formatNonceBytes(nonceBytes []byte, nonce int) []byte {
+	for i := len(nonceBytes) - 1; i >= 0; i-- {
+		nonceBytes[i] = '0' + byte(nonce%10)
+		nonce /= 10
+		if nonce == 0 {
+			break
+		}
+	}
+	return nonceBytes
+}
+
+func GenerateHashToken(resource []byte, difficulty int) (string, error) {
 	for {
 		nonce, err := GenerateNonce()
 		if err != nil {
 			return "", err
 		}
+		data := append(resource, nonce...)
+		hash := sha256.Sum256(data)
 
-		data := resource + fmt.Sprintf("%x", nonce)
-		hash := sha256.Sum256([]byte(data))
-		hashString := hex.EncodeToString(hash[:])
-
-		if strings.HasPrefix(hashString, prefix) {
-			return fmt.Sprintf("%s@%s", hashString, nonce), nil
+		if hasPrefixZeroes(hash[:], difficulty) {
+			return fmt.Sprintf("%x@%x", hash[:], nonce), nil
 		}
 	}
+
+	return "", errors.New("hash not found")
+}
+
+func hasPrefixZeroes(hash []byte, difficulty int) bool {
+	for i := 0; i < difficulty; i++ {
+		if hash[i] != '0' {
+			return false
+		}
+	}
+	return true
 }
 
 // VerifyHashToken verifies the validity of a hash-cash token
@@ -43,14 +64,13 @@ func VerifyHashToken(token string, resource string, difficulty int) bool {
 		return false
 	}
 
-	prefix := strings.Repeat("0", difficulty)
 	data := resource + fmt.Sprintf("%x", parts[1])
 	hashString := parts[0]
 
 	hash := sha256.Sum256([]byte(data))
 	hashStringCalculated := hex.EncodeToString(hash[:])
 
-	if strings.HasPrefix(hashStringCalculated, prefix) && hashString == hashStringCalculated {
+	if hasPrefixZeroes(hash[:], difficulty) && hashString == hashStringCalculated {
 		return true
 	}
 
