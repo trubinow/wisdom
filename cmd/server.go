@@ -16,7 +16,7 @@ func main() {
 	})
 
 	// Convert PORT env variable value to an integer
-	port, err := strconv.Atoi(os.Getenv("PORT"))
+	port, err := strconv.Atoi(os.Getenv("TCP_SERVER_PORT"))
 	if err != nil {
 		log.Errorf("error converting PORT variable to integer: %s", err.Error())
 		return
