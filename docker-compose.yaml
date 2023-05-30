@@ -1,0 +1,21 @@
+version: "3.2"
+services:
+  tcp-server:
+    build:
+      context: .
+      dockerfile: Dockerfile-server
+    env_file:
+      - .env
+    networks:
+      - go_net
+  tcp-client:
+    build:
+      context: .
+      dockerfile: Dockerfile-client
+    env_file:
+      - .env
+    networks:
+      - go_net
+networks:
+  go_net:
+    driver: bridge

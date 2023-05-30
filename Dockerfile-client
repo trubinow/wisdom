@@ -1,0 +1,16 @@
+FROM golang:alpine AS builder
+
+WORKDIR /build
+
+ADD . .
+
+RUN go mod download
+RUN GOOS=linux  go build  -o client ./cmd/client.go
+
+FROM golang:alpine
+
+WORKDIR /build
+
+COPY --from=builder /build/client .
+
+CMD ["./client"]

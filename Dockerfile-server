@@ -1,0 +1,17 @@
+FROM golang:alpine AS builder
+
+WORKDIR /build
+
+ADD . .
+
+RUN go mod download
+RUN GOOS=linux  go build  -o server ./cmd/server.go
+
+FROM golang:alpine
+
+WORKDIR /build
+
+COPY --from=builder /build/quotations.txt .
+COPY --from=builder /build/server .
+
+CMD ["./server"]
