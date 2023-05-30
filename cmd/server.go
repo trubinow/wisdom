@@ -4,10 +4,10 @@ import (
 	"github.com/sirupsen/logrus"
 	"os"
 	"strconv"
+	"time"
 	"wisdom/internal/handlers"
 	"wisdom/internal/servers"
 	"wisdom/internal/services"
-	"wisdom/internal/utils"
 )
 
 func main() {
@@ -30,7 +30,7 @@ func main() {
 	}
 
 	// Convert DIFFICULTY env variable value to an integer
-	tcpConnectionDeadline, err := utils.StringToDuration(os.Getenv("TCP_CONNECTION_DEADLINE"))
+	tcpConnectionDeadline, err := time.ParseDuration(os.Getenv("TCP_CONNECTION_DEADLINE"))
 	if err != nil {
 		log.Errorf("error converting TCP_CONNECTION_DEADLINE variable to time.Duration: %s", err.Error())
 		return

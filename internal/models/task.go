@@ -8,8 +8,3 @@ type Work struct {
 	Resource   []byte
 	Difficulty int
 }
-
-type Proof struct {
-	Hash  string
-	Nonce string
-}
